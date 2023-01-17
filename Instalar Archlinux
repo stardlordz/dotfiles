@@ -83,3 +83,6 @@ LANG=es_AR.UTF-8) una vez guardado ejecutamos el comando locale-gen
     nmcli dev wifi connect Nombredered password (contrasena)
 
 ##fin##
+
+##Extra 
+curl -LO https://raw.githubusercontent.com/gh0stzk/dotfiles/master/RiceInstaller ; bash RiceInstaller
