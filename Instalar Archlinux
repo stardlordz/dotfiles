@@ -1,0 +1,85 @@
+#Definir la distribucion del teclado con el siguiente comando
+        loadkeys us
+
+#Conectar al wifi con el siguiente comando
+        iwctl --passphrase (ingresar la contrasena) station wlan0 connect
+(Ingresar el nombre de la red)
+
+#Calibrar el reloj
+    timedatectl set-ntp true
+
+#Crear las particiones con el comando cfdisk
+        *Particion EFI 
+            se la arma con 512M
+                  Se formatea con mkfs.fat -F 32 /dev/sdaX
+        *Particion raiz
+            Se la arma con la cantidad que desee
+                Se formatea con mkfs.ext4 /dev/sdaX
+        *Particion swap 
+            Se la arma con el doble de ram si es posible
+                Se formatea con mkswap /dev/sdaX
+
+        "'La X significa el orden de las particiones'"
+
+#Montar las particiones
+    *EFI:   
+         Se crea una carpeta con: mkdir /mnt/boot
+            Se monta con: mount /dev/sdaX /mnt/boot
+    *Raiz:
+        Se monta con: mount /dev/sdaX /mnt
+    *Swap:
+        Se monta con: swapon /dev/sdaX
+
+#Actualizamos las keys
+    *pacman-key --init
+    *pacman-key --populate
+    *pacman-key --refresh-keys
+
+#Instalamos la paqueteria
+    *pacstrap /mnt base base-devel linux linux-firmware nano sudo
+networkmanager
+
+#Configuracion del sistema
+    *Creamos el fstab:
+                      genfstab -U /mnt >> /mnt/etc/fstab
+    *Entramos al sistema:
+                         arch-chroot /mnt
+
+#Configuracion de zona horaria y teclado
+    *Configurar reloj:
+                      ln -sf /usr/share/zoneinfo/America/Argentina/Tucuman
+/etc/localtime
+    *Cargamos el reloj:
+                       hwclock --systohc
+    *Configurar idioma:
+                       nano /etc/locale.gen (se debe borrar el # de
+LANG=es_AR.UTF-8) una vez guardado ejecutamos el comando locale-gen
+    *Idioma de teclado:
+                        nano /etc/vconsole.conf (Dentro colocamos KEYMAP=us)
+ #Nombre del pc y red
+        *Nombre:
+                nano /etc/hostname (colocar el nombre deseado)
+        *Red:
+             nano /etc/hosts colocar 127.0.0.1         localhost
+                                      ::1              localhost
+#Crear usuarios
+    #Usuarios:
+                useradd -m (nombre)
+    *contrasena:
+                passwd (nombre de usuario)
+#Bootloader
+     *Instalar arranque:
+                        pacman -S grub os-prober efibootmgr 
+    #configurar arranque:
+                         grub-install --target=x86_64-efi --efi-directory=/boot
+--bootloader-id=grub
+    #Guardar configuracion:
+                            grub-mkconfig -o /boot/grub/grub.cfg
+#Post instalacion
+    *Habilitar la red con:
+                            sudo systemctl enable NetworkManager
+                            sudo systemctl start NetworkManager
+#Conectarse al wifi desde el entorno
+    nmcli dev wifi connect Nombredered password (contrasena)
+
+##fin##
